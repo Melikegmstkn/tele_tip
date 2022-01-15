@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tele_tip/view/login/login_page.dart';
-import 'package:tele_tip/view/login/login_viewmodel.dart';
+import 'package:tele_tip/view/authentication/view/authenication.dart';
+import 'package:tele_tip/view/authentication/viewmodel/login_viewmodel.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
         title: "TELE TIP",
-        home: LoginPage(),
+        home: AuthenticScreen(),
       ),
     );
   }
