@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:tele_tip/core/components/text_field.dart';
-import 'package:tele_tip/core/extension/context_extensions.dart';
+import 'package:provider/provider.dart';
+import 'package:tele_tip/my_widget/text_field.dart';
+import 'package:tele_tip/view/home/home_viewmodel.dart';
+import 'package:tele_tip/view/search/search_page.dart';
+import 'package:tele_tip/view/search/search_viewmodel.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final bool isItDoctor;
+  const HomePage({Key? key, this.isItDoctor = false}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -17,62 +21,33 @@ class _HomePageState extends State<HomePage> {
 
   PageController pageController = PageController();
 
-  int _selectedIndex = 0;
+  List<String> searchTitle = [
+    " UZMANLIK ALANINA GÖRE ARA",
+    " ANA DALA GÖRE ARA",
+    " DOKTOR ADINA GÖRE ARA ",
+  ];
 
+  int _selectedIndex = 0;
+  var color = const Color(0xE12E183B);
   @override
   Widget build(BuildContext context) {
+    final homeViewModel = Provider.of<HomeViewModel>(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xdf7d2ac7),
-        // actions: [
-        //   Padding(
-        //     padding: context.paddingLow,
-        //     child: Stack(
-        //       alignment: Alignment.topRight,
-        //       children: [
-        //         IconButton(
-        //           onPressed: () {},
-        //           icon: Icon(
-        //             Icons.notifications,
-        //             size: context.shortestSide < 600 ? null : 27.0,
-        //           ),
-        //         ),
-        //         Positioned(
-        //           right: 7,
-        //           top: 2,
-        //           child: CircleAvatar(
-        //             backgroundColor: Colors.red,
-        //             radius: context.shortestSide < 600 ? 8 : 10,
-        //             child: const Text(
-        //               "1",
-        //               style: TextStyle(
-        //                 fontSize: 12,
-        //                 color: Colors.white,
-        //               ),
-        //             ),
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ],
-        bottom: _selectedIndex == 0
-            ? PreferredSize(
-                child: searchWidget(),
-                preferredSize: const Size.fromHeight(65.0))
-            : null,
+        backgroundColor: color,
       ),
       body: PageView(
         controller: pageController,
         children: [
-          buildHomePage(context),
+          buildHomePage(context, homeViewModel, searchTitle),
           buildProfilPage(context),
           ListView.builder(
+            itemCount: homeViewModel.userList.length,
             itemBuilder: (context, index) {
-              return Card(
+              return const Card(
                 elevation: 2.0,
-                margin: context.paddingLow,
-                child: const ListTile(
+                margin: EdgeInsets.all(8.0),
+                child: ListTile(
                   minVerticalPadding: 25.0,
                   leading: CircleAvatar(
                     radius: 25.0,
@@ -88,7 +63,7 @@ class _HomePageState extends State<HomePage> {
         onPageChanged: onTap,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xdf7d2ac7),
+        backgroundColor: color,
         selectedItemColor: Colors.white,
         items: <BottomNavigationBarItem>[
           const BottomNavigationBarItem(
@@ -112,7 +87,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.all(5.0),
           child: Icon(
             Icons.message,
-            size: context.shortestSide < 600 ? null : 27.0,
+            size: MediaQuery.of(context).size.shortestSide < 600 ? null : 27.0,
           ),
         ),
         Positioned(
@@ -120,7 +95,7 @@ class _HomePageState extends State<HomePage> {
           bottom: 17,
           child: CircleAvatar(
             backgroundColor: Colors.red,
-            radius: context.shortestSide < 600 ? 8 : 10,
+            radius: MediaQuery.of(context).size.shortestSide < 600 ? 8 : 10,
             child: const Text(
               "1",
               style: TextStyle(
@@ -134,23 +109,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildHomePage(BuildContext context) {
+  Widget buildHomePage(BuildContext context, HomeViewModel homeViewModel,
+      List<String> cardTitle) {
     return ListView(
       children: [
         Container(
-          margin: context.paddingLow,
-          width: context.width,
+          margin: const EdgeInsets.all(8.0),
+          width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30.0),
-            color: const Color(0x54996EE8),
+            color: color.withAlpha(100),
           ),
           child: Row(
             children: [
               Image.asset("assets/images/woman.png"),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  "Melike Gümüştekin",
-                  style: TextStyle(fontSize: 24.0),
+                  homeViewModel.user.name!,
+                  style: const TextStyle(fontSize: 24.0),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -158,18 +134,46 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Container(
-          margin: context.paddingLow,
-          width: context.width,
-          height: context.height * 0.4,
+          margin: const EdgeInsets.all(8.0),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.4,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30.0),
-            color: const Color(0x54996EE8),
+            color: color.withAlpha(100),
           ),
-          child: ListView.builder(
-            itemCount: 3,
-            scrollDirection: Axis.horizontal,
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 1.2,
+            ),
+            itemCount: cardTitle.length,
             itemBuilder: (context, index) {
-              return Container();
+              return Card(
+                elevation: 5.0,
+                margin: const EdgeInsets.all(25.0),
+                child: ListTile(
+                  title: Column(
+                    children: [
+                      Text(cardTitle[index]),
+                      const Icon(Icons.search, size: 45.0),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        (MaterialPageRoute(
+                          builder: (context) => ChangeNotifierProvider(
+                            create: (_) => SearchViewModel(),
+                            child: SearchPage(
+                              title: cardTitle[index],
+                              istItProfession: index == 0 ? true : false,
+                              istItDoctor: index == 2 ? true : false,
+                            ),
+                          ),
+                        )));
+                  },
+                ),
+              );
             },
           ),
         ),
@@ -179,11 +183,11 @@ class _HomePageState extends State<HomePage> {
 
   Container buildProfilPage(BuildContext context) {
     return Container(
-      margin: context.paddingLow,
-      width: context.width,
+      margin: const EdgeInsets.all(8.0),
+      width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
-        color: const Color(0x54996EE8),
+        color: color.withAlpha(100),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -240,44 +244,5 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
     pageController.jumpToPage(index);
-  }
-
-  searchWidget() {
-    return Container(
-      alignment: Alignment.center,
-      width: MediaQuery.of(context).size.width,
-      height: 70.0,
-      child: Container(
-        width: MediaQuery.of(context).size.width - 40.0,
-        height: 30.0,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(6.0),
-        ),
-        child: Row(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 8.0),
-              child: Icon(
-                Icons.search,
-                color: Colors.blueGrey,
-              ),
-            ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: TextField(
-                  onChanged: (value) {
-                    // startSearching(value);
-                  },
-                  decoration: const InputDecoration.collapsed(
-                      hintText: "randevu ara..."),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
   }
 }

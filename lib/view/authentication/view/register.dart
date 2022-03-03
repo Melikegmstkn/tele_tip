@@ -85,10 +85,11 @@ class _RegisterState extends State<Register> {
           ),
           ElevatedButton(
             onPressed: () => _loginViewModel.createUser(
-                context,
-                _nameController.text,
-                _emailController.text,
-                _passwordController.text),
+              context,
+              _nameController.text,
+              _emailController.text,
+              _passwordController.text,
+            ),
             child: const Text(
               "Kayıt ol",
               style: TextStyle(

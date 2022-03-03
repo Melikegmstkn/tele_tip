@@ -4,6 +4,7 @@ import 'package:tele_tip/my_widget/error_dialog.dart';
 import 'package:tele_tip/view/authentication/view/doctor_login.dart';
 import 'package:tele_tip/view/authentication/viewmodel/login_viewmodel.dart';
 import 'package:tele_tip/view/home/home_page.dart';
+import 'package:tele_tip/view/home/home_viewmodel.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -27,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisSize: MainAxisSize.max,
         children: [
           SizedBox(
-            child: Container(),
+            child: Image.asset("assets/images/hospital.jpg"),
             height: 240.0,
             width: 240.0,
           ),
@@ -62,8 +63,32 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () {
               _emailController.text.isNotEmpty
                   ? _passwordController.text.isNotEmpty
-                      ? Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomePage()))
+                      ? _loginViewModel
+                          .loginUser(
+                            email: _emailController.text,
+                            password: _passwordController.text,
+                          )
+                          .then((value) => {
+                                if (value)
+                                  {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ChangeNotifierProvider(
+                                                  create: (_) => HomeViewModel(
+                                                      user: _loginViewModel
+                                                          .currentUser!),
+                                                  child: const HomePage(),
+                                                )))
+                                  }
+                                else
+                                  {
+                                    const ErrorAlertDialog(
+                                      message: "Email veya şifre hatalı",
+                                    )
+                                  }
+                              })
                       : showDialog(
                           context: context,
                           builder: (c) {
@@ -105,7 +130,10 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const DoctorLoginPage())),
+                    builder: (context) => ChangeNotifierProvider(
+                          create: (_) => LoginViewModel(),
+                          child: const DoctorLoginPage(),
+                        ))),
             child: Row(
               children: const [
                 Expanded(

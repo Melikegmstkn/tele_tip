@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tele_tip/model/user_model.dart';
+import 'package:tele_tip/my_widget/error_dialog.dart';
+import 'package:tele_tip/service/doctor.dart';
 import 'package:tele_tip/service/user.dart';
 import 'package:tele_tip/view/home/home_page.dart';
 
 enum LoginState { busy, idle }
 
 class LoginViewModel with ChangeNotifier {
+  User? _currentUser;
+  User? get currentUser => _currentUser;
+  set currentUser(User? currentUser) {
+    _currentUser = currentUser;
+    notifyListeners();
+  }
+
   LoginState _state = LoginState.idle;
   LoginState get state => _state;
   set state(LoginState state) {
@@ -34,21 +45,56 @@ class LoginViewModel with ChangeNotifier {
     }
   }
 
-  getCurrentUser() async {
-    var result = await getUser("users", {});
+  loginUser({required String email, required String password}) async {
+    debugPrint("USER GİRİŞ YAPILIYOR -> ");
+    var result = await getUserLogin(
+      "login-user",
+      email.toString(),
+    );
+    debugPrint("USER GİRİŞ  -> ");
+    // debugPrint("USER   -> " + result.first.name!);
+    if (password == result!.password) {
+      currentUser = result;
+      debugPrint("USER GİRİŞ TAMAM -> ");
+      return true;
+    } else {
+      debugPrint("USER GİRİŞ OLMADI -> ");
+      return false;
+    }
+  }
+
+  loginDoctor({required String email, required String password}) async {
+    debugPrint("DOKTOR PASS bekle -> ");
+    var result = await doctorLogin(
+      "login-doctor",
+      {"email": email},
+    );
+    debugPrint("DOKTOR PASS -> " + result);
+    if (password == result["password"].toString()) {
+      return true;
+    } else {
+      return const ErrorAlertDialog(
+        message: "Email veya şifre hatalı",
+      );
+    }
   }
 
   createUser(
       BuildContext context, String name, String email, String password) async {
-    var result = await registerUser("create-user", {
-      "name": name,
-      "email": email,
-      "password": password,
-    });
+    var result = await registerUser(
+      "create-user",
+      {"name": name, "email": email, "password": password},
+    );
     if (result.ok) {
-      print("KAYIT BAŞARILI");
+      debugPrint("KAYIT BAŞARILI");
       Navigator.push(
-          context, (MaterialPageRoute(builder: (context) => const HomePage())));
+          context,
+          (MaterialPageRoute(
+            builder: (context) => ChangeNotifierProvider(
+              create: (_) => LoginViewModel(),
+              child: const HomePage(),
+            ),
+          )));
     }
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tele_tip/core/extension/context_extensions.dart';
 
 class MyTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -20,8 +19,8 @@ class MyTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: context.paddingMediumHorizontal,
-      padding: context.paddingLow,
+      margin: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -31,7 +30,7 @@ class MyTextField extends StatelessWidget {
             child: TextFormField(
               controller: controller,
               decoration: InputDecoration(
-                contentPadding: context.paddingLow,
+                contentPadding: const EdgeInsets.all(8.0),
                 prefixIcon: Icon(icon, color: const Color(0xFF072A8D)),
                 hintText: hintText,
                 labelText: labelText,
